@@ -1,6 +1,6 @@
 {
   "name": "k2p-desktop",
-  "version": "0.0.1-test",
+  "version": "0.1.0",
   "private": true,
   "description": "K2P Desktop — the TCSP double-click installer/launcher for the K2P execution-plane stack",
   "main": "dist/main.js",
