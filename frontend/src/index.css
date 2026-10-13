@@ -1,0 +1,130 @@
+/* Tokens and base elements. Everything else lives in App.css. */
+
+:root {
+  --text: #1f2328;
+  --muted: #59636e;
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --border: #d8dee4;
+  --accent: #0969da;
+  --accent-soft: #ddf4ff;
+
+  --risk-green-text: #1a7f37;
+  --risk-green-bg: #dafbe1;
+  --risk-green-border: #aceebb;
+  --risk-amber-text: #9a6700;
+  --risk-amber-bg: #fff8c5;
+  --risk-amber-border: #eed888;
+  --risk-red-text: #cf222e;
+  --risk-red-bg: #ffebe9;
+  --risk-red-border: #ffc9c9;
+
+  --radius: 8px;
+  --sans: system-ui, 'Segoe UI', Roboto, 'Noto Sans TC', sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+
+  color-scheme: light dark;
+  font: 15px/1.5 var(--sans);
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #e6edf3;
+    --muted: #9198a1;
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --accent: #4493f8;
+    --accent-soft: #12263a;
+
+    --risk-green-text: #3fb950;
+    --risk-green-bg: rgba(46, 160, 67, 0.15);
+    --risk-green-border: rgba(46, 160, 67, 0.4);
+    --risk-amber-text: #d29922;
+    --risk-amber-bg: rgba(187, 128, 9, 0.15);
+    --risk-amber-border: rgba(187, 128, 9, 0.4);
+    --risk-red-text: #f85149;
+    --risk-red-bg: rgba(248, 81, 73, 0.15);
+    --risk-red-border: rgba(248, 81, 73, 0.4);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 0 0 8px;
+}
+
+h1 {
+  font-size: 1.4rem;
+}
+
+h2 {
+  font-size: 1.1rem;
+}
+
+h3 {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+p {
+  margin: 0 0 8px;
+}
+
+a {
+  color: var(--accent);
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  background: var(--accent-soft);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+button {
+  font: inherit;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+button.secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+input,
+select,
+textarea {
+  font: inherit;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+}

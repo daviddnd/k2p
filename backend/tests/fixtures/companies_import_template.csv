@@ -1,0 +1,4 @@
+br_number,cr_number,name_en,name_zh,business_name,date_of_incorporation,anniversary_date,type,effective_date,ro_flat,ro_building,ro_street,ro_district,ro_country,status,business_nature_code,business_nature_description,email,contact_phone_hk,mortgages_and_charges_total,member_count,records_kept,share_capital_classes
+12345678,1234567,EXAMPLE LIMITED,示例有限公司,EXAMPLE,2010-03-01,,private,,12/F,EXAMPLE TOWER,1 EXAMPLE ROAD,Central,,active,620,Computer programming,co@example.com,23456789,1500.25,,,"[{""class_name"": ""Ordinary"", ""currency"": ""HKD"", ""total_shares"": 10000, ""total_amount"": 10000, ""total_paid_up"": 10000}]"
+87654321,,SECOND LIMITED,,,2015-06-15,,private,,,,,,,,,,,,,,
+99999999,,GUARANTEE CO LIMITED,擔保有限公司,,2012-01-05,2026-12-31,company_limited_by_guarantee,,,,,,,,,,,,,100,,

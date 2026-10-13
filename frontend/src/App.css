@@ -1,0 +1,721 @@
+/* Application layout and components. Tokens and base elements: index.css. */
+
+.app {
+  min-height: 100vh;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 10px 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  font-weight: 600;
+}
+
+.app-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.app-nav a {
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--muted);
+}
+
+.app-nav a.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.session-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.app-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.view {
+  display: grid;
+  gap: 16px;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.footnote {
+  font-size: 0.85rem;
+}
+
+.error {
+  color: var(--risk-red-text);
+}
+
+.notice {
+  background: var(--risk-amber-bg);
+  border: 1px solid var(--risk-amber-border);
+  color: var(--risk-amber-text);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+}
+
+.pending {
+  color: var(--risk-amber-text);
+  font-weight: 600;
+}
+
+.overdue {
+  color: var(--risk-red-text);
+  font-weight: 600;
+}
+
+/* Company screen tabs */
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab {
+  padding: 6px 14px;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  color: var(--muted);
+  margin-bottom: -1px;
+}
+
+.tab.active {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* The audit report's chain verdict */
+
+.chain-verdict {
+  font-weight: 600;
+  margin: 0;
+}
+
+.audit-area {
+  margin-top: 16px;
+}
+
+.audit-area h3 {
+  margin: 0 0 8px;
+}
+
+/* Summary tiles */
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.tile-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.tile-label {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.tile-amber .tile-value {
+  color: var(--risk-amber-text);
+}
+
+.tile-red .tile-value {
+  color: var(--risk-red-text);
+}
+
+/* Tables */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.table th {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Badges */
+
+.badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.risk-green {
+  color: var(--risk-green-text);
+  background: var(--risk-green-bg);
+  border-color: var(--risk-green-border);
+}
+
+.risk-amber {
+  color: var(--risk-amber-text);
+  background: var(--risk-amber-bg);
+  border-color: var(--risk-amber-border);
+}
+
+.risk-red {
+  color: var(--risk-red-text);
+  background: var(--risk-red-bg);
+  border-color: var(--risk-red-border);
+}
+
+.badge.alert {
+  color: var(--muted);
+}
+
+.badge.status-active {
+  color: var(--risk-green-text);
+  background: var(--risk-green-bg);
+  border-color: var(--risk-green-border);
+}
+
+.badge.status-dormant,
+.badge.status-striking_off,
+.badge.status-dissolved,
+.badge.status-unrecorded {
+  color: var(--muted);
+}
+
+/* Company identifiers */
+
+.company-name {
+  display: block;
+}
+
+.brn {
+  display: block;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+}
+
+/* Filters */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 8px 0 12px;
+}
+
+.filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* Company cards */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  scroll-margin-top: 16px;
+}
+
+.card header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card header h3 {
+  margin: 0;
+}
+
+.next-deadline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Lists */
+
+.plain-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.chip-list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.linklike {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+}
+
+.issued-url {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.issued-url input {
+  flex: 1 1 320px;
+  min-width: 0;
+  font-family: var(--mono);
+}
+
+.identity-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Ingestion review */
+
+.batch-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.batch {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.batch.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.batch-summary {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.batch-summary p {
+  margin: 0;
+}
+
+.review-table tr.decided td {
+  color: var(--muted);
+}
+
+.value-cell {
+  max-width: 22ch;
+  overflow-wrap: anywhere;
+}
+
+.row-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.decision-form {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.decision-form label {
+  display: grid;
+  gap: 3px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.decision-form p {
+  margin: 0;
+}
+
+.badge.record-pending {
+  color: var(--risk-amber-text);
+  background: var(--risk-amber-bg);
+  border-color: var(--risk-amber-border);
+}
+
+.badge.record-confirmed {
+  color: var(--risk-green-text);
+  background: var(--risk-green-bg);
+  border-color: var(--risk-green-border);
+}
+
+.badge.record-rejected {
+  color: var(--muted);
+}
+
+button.danger {
+  background: var(--risk-red-bg);
+  border-color: var(--risk-red-border);
+  color: var(--risk-red-text);
+}
+
+/* Client actions: the period board and the milestone configuration */
+
+.periods {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.period {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.period-acts {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+/* The panel's five milestone states, as the backend derives them. */
+.badge.state-pending {
+  color: var(--muted);
+}
+
+.badge.state-due {
+  color: var(--risk-amber-text);
+  background: var(--risk-amber-bg);
+  border-color: var(--risk-amber-border);
+}
+
+.badge.state-overdue {
+  color: var(--risk-red-text);
+  background: var(--risk-red-bg);
+  border-color: var(--risk-red-border);
+}
+
+.badge.state-done {
+  color: var(--risk-green-text);
+  background: var(--risk-green-bg);
+  border-color: var(--risk-green-border);
+}
+
+/* Blocked is a refusal, not a date: dashed, so it never reads as "overdue". */
+.badge.state-blocked {
+  color: var(--risk-red-text);
+  border-color: var(--risk-red-border);
+  border-style: dashed;
+  background: none;
+}
+
+/* The period's record: the answer, then the fee. */
+.badge.renewal-none {
+  color: var(--muted);
+}
+
+.badge.renewal-pending {
+  color: var(--risk-amber-text);
+  background: var(--risk-amber-bg);
+  border-color: var(--risk-amber-border);
+}
+
+.badge.renewal-confirmed,
+.badge.renewal-payment_received {
+  color: var(--risk-green-text);
+  background: var(--risk-green-bg);
+  border-color: var(--risk-green-border);
+}
+
+.badge.renewal-declined {
+  color: var(--risk-red-text);
+  background: var(--risk-red-bg);
+  border-color: var(--risk-red-border);
+}
+
+/* The change-event lifecycle's nine statuses, coloured by where they stand:
+   waiting on staff reads amber, progressing or done green, out of the game
+   grey. `deleted` and `withdrawn` are ends and are not shown as failures — no
+   rejection paints red here, because a rejection is the *record*, not an
+   error. */
+.badge.event-pending,
+.badge.event-under_review {
+  color: var(--risk-amber-text);
+  background: var(--risk-amber-bg);
+  border-color: var(--risk-amber-border);
+}
+
+.badge.event-reviewed,
+.badge.event-confirmed,
+.badge.event-applied_to_draft,
+.badge.event-submitted {
+  color: var(--risk-green-text);
+  background: var(--risk-green-bg);
+  border-color: var(--risk-green-border);
+}
+
+.badge.event-client_reconfirming,
+.badge.event-withdrawn,
+.badge.event-deleted {
+  color: var(--muted);
+}
+
+/* The draft lifecycle's nine statuses, coloured by where they stand: waiting
+   on staff reads amber, progressing or done green, and the two ends — an
+   invalidated draft above all — grey, because an end is a state, not an
+   error. */
+.badge.draft-generated,
+.badge.draft-under_review {
+  color: var(--risk-amber-text);
+  background: var(--risk-amber-bg);
+  border-color: var(--risk-amber-border);
+}
+
+.badge.draft-sent_for_signature,
+.badge.draft-signature_received,
+.badge.draft-reviewed,
+.badge.draft-approved,
+.badge.draft-exported {
+  color: var(--risk-green-text);
+  background: var(--risk-green-bg);
+  border-color: var(--risk-green-border);
+}
+
+.badge.draft-rejected,
+.badge.draft-invalidated {
+  color: var(--muted);
+}
+
+/* The master records: the person and address groups, the record forms, and
+   the draft's changed marker. */
+
+.record-form {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.record-form label,
+.field-group label {
+  display: grid;
+  gap: 3px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.field-group {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.field-group legend {
+  padding: 0 4px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.field-group label.checkbox,
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.field-group p {
+  margin: 0;
+}
+
+/* The changed provenance row: §2.9 step 8's highlight, and the item a
+   reviewer's eye should land on first. */
+.table tr.changed td {
+  background: var(--risk-amber-bg);
+}
+
+.badge.changed {
+  color: var(--risk-amber-text);
+  background: var(--risk-amber-bg);
+  border-color: var(--risk-amber-border);
+}
+
+/* Login */
+
+.login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.login-card {
+  width: min(380px, 100%);
+  display: grid;
+  gap: 12px;
+}
+
+.login-card label {
+  display: grid;
+  gap: 4px;
+  font-size: 0.9rem;
+}
+
+/* The enrollment screen's otpauth URI is one long token: it wraps instead of
+   overflowing the card. */
+.mfa-uri {
+  overflow-wrap: anywhere;
+  font-size: 0.85rem;
+}
+
+/* The pre-use risk-acknowledgment interstitial: the served statement is the
+   document the operator reads, so the card is wider than the sign-in card and
+   the text keeps its own line breaks (R5: verbatim, never paraphrased). */
+.risk-ack-card {
+  width: min(680px, 100%);
+  display: grid;
+  gap: 12px;
+}
+
+.risk-statement {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+/* Error panel */
+
+.error-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-color: var(--risk-red-border);
+  background: var(--risk-red-bg);
+  color: var(--risk-red-text);
+}
+
+.error-panel p {
+  margin: 0;
+}

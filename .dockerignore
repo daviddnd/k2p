@@ -1,0 +1,18 @@
+# Build-context hygiene for deploy/*.Dockerfile (all build from the repo root).
+# Nothing the images COPY is excluded: the backend image copies backend/ and
+# deploy/ config, the control-plane image copies control_plane/ and the panel
+# builds from a clean npm ci; .env and .git are never copied.
+.git
+.env
+**/.venv
+**/node_modules
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+**/.import_linter_cache
+control_plane/panel/dist
+control_plane/panel/dist-ssr
+frontend/dist
+frontend/dist-ssr

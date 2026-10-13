@@ -1,0 +1,108 @@
+# K2P Desktop stack — the execution-plane services for the desktop launcher.
+# Tracks deploy/docker-compose.yml (the source of truth for the product stack);
+# differences: prebuilt GHCR images (no on-customer builds), loopback-only host
+# bindings, env file supplied by the launcher, no TLS mount (v1 is localhost).
+# One version axis: ${K2P_VERSION} pins backend/frontend image tags per release.
+
+services:
+  db:
+    image: postgres:16.15-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aics}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set by the launcher}
+      POSTGRES_DB: ${POSTGRES_DB:-aics}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-aics} -d $${POSTGRES_DB:-aics}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-aics}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set by the launcher}
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "mc ready local || curl -f http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio-init:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        mc alias set aics http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"
+        mc mb --ignore-existing "aics/$$AICS_S3_BUCKET"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-aics}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set by the launcher}
+      AICS_S3_BUCKET: ${AICS_S3_BUCKET:-aics-documents}
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: "no"
+
+  clamav:
+    image: clamav/clamav:1.4.3
+    volumes:
+      - clamav-data:/var/lib/clamav
+    healthcheck:
+      test: ["CMD-SHELL", "echo PING | nc -w 3 127.0.0.1 3310 | grep -q PONG"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 300s
+
+  backend:
+    image: ghcr.io/daviddnd/k2p-backend:${K2P_VERSION:?pinned per launcher release}
+    environment:
+      AICS_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-aics}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-aics}
+      AICS_S3_ENDPOINT_URL: http://minio:9000
+      AICS_S3_BUCKET: ${AICS_S3_BUCKET:-aics-documents}
+      AICS_S3_ACCESS_KEY: ${MINIO_ROOT_USER:-aics}
+      AICS_S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      AICS_SCAN_HOST: clamav
+      AICS_SCAN_PORT: "3310"
+      AICS_SETUP_TOKEN: ${AICS_SETUP_TOKEN:-}
+      # Pre-activation entitlement source (ADR-0012): `free` until a lease takes
+      # over; a demo/pilot env file sets `standard`.
+      AICS_LICENSE_TIER: ${AICS_LICENSE_TIER:-free}
+    volumes:
+      - ${K2P_CREDENTIAL_DIR:?set by the launcher}:/app/var
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+      clamav:
+        condition: service_healthy
+
+  frontend:
+    image: ghcr.io/daviddnd/k2p-frontend:${K2P_VERSION:?pinned per launcher release}
+    ports:
+      - "127.0.0.1:5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  db-data:
+  minio-data:
+  clamav-data:

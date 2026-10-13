@@ -1,0 +1,122 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-com-sec-backend"
+version = "0.1.0"
+description = "AI company-secretary product (MVP A) — execution-plane backend per ADR-0006/0012"
+requires-python = ">=3.12"
+# Production dependencies are limited to the ADR-0001 stack. Any addition
+# requires sign-off per AGENTS.md (human-in-the-loop triggers).
+# boto3: founder sign-off 2026-08-25 (document-store slice) — S3 client for
+# the records registry (ADR-0009); ADR-0001 names no S3 client.
+# pdfplumber / pypdfium2 / Pillow / pytesseract: founder sign-off 2026-09-21
+# (prior-filing extraction slice) — prior filings arrive in three shapes
+# (AcroForm values, text layer, scanned image), needing word coordinates,
+# rasterization, image pre-processing, and a local OCR engine respectively
+# (scope §7). Cloud OCR is excluded by ADR-0012's local-vault rule. Tesseract
+# itself is a system package in deploy/backend.Dockerfile, not a Python dep.
+# httpx: founder sign-off 2026-09-21 (control-plane lease client, CP1b) — the
+# execution plane's outbound client to the vendor control plane (ADR-0016),
+# the same library the control-plane service already uses for its Google OIDC
+# calls; it was a dev dependency (TestClient) until now.
+# pypdf + fontTools: founder sign-off 2026-09-28 ("proceed with your
+# recommendations", Phase 5 slice F4) — the CR-draft filler (ADR-0004 as
+# amended 2026-08-19) fills the pinned AcroForm templates, regenerates the
+# field appearances, and embeds the Traditional-Chinese overlay font, which is
+# the Phase 0 spike's proven mechanism (pypdf 6.14.2 / fontTools 4.63.0); the
+# Noto Sans HK asset itself is committed under backend/assets/ (OFL).
+# cryptography: founder sign-off 2026-09-30 ("proceed per the counsel-endorsed
+# recommendations", CP2 pack-signing seam) — Ed25519 signatures over the
+# release digest replace digest-only integrity (corruption detection, no
+# forgery protection) with cryptographic authenticity on the pack channel
+# (ADR-0012): the vendor signs at publish; the execution plane verifies
+# against its pinned vendor public key before install.
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "sqlalchemy[asyncio]>=2.0",
+    "psycopg[binary]>=3.2",
+    "alembic>=1.13",
+    "boto3>=1.35",
+    "httpx>=0.27",
+    "pdfplumber>=0.11",
+    "pypdfium2>=4.30",
+    "Pillow>=10.4",
+    "pytesseract>=0.3.13",
+    "pypdf>=6.14",
+    "fonttools>=4.63",
+    "cryptography>=43",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "import-linter>=2.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["app"]
+
+# boto3/botocore ship no type stubs (the stub package would be another
+# dependency); the storage adapter is covered by the MinIO round-trip test.
+# pypdfium2/pytesseract likewise (the OCR adapter is covered by the scanned
+# corpus tests, which run where the engine is installed). fontTools ships no
+# ``py.typed`` either; the filler's font embedding is covered by the fork's own
+# round-trip and render tests.
+[[tool.mypy.overrides]]
+module = ["boto3", "botocore.*", "pypdfium2", "pypdfium2.*", "pytesseract", "fontTools", "fontTools.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+# ADR-0006 dependency direction: api/workers → application → adapters → domain → core.
+# `lint-imports` (import-linter) enforces this mechanically; run it in CI/local checks.
+[tool.importlinter]
+root_packages = ["app"]
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Layered architecture (ADR-0006)"
+type = "layers"
+layers = [
+    "app.api | app.workers",
+    "app.application",
+    "app.adapters",
+    "app.domain",
+    "app.core",
+]
+
+[[tool.importlinter.contracts]]
+name = "Deterministic core: domain/ has no framework or I/O imports (ADR-0006)"
+type = "forbidden"
+source_modules = ["app.domain"]
+forbidden_modules = [
+    "fastapi",
+    "sqlalchemy",
+    "alembic",
+    "pydantic_settings",
+    "httpx",
+    "celery",
+    "rq",
+]

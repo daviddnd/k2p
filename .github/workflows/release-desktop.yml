@@ -1,0 +1,120 @@
+name: release-desktop
+
+# Fires on desktop-v* tags. Two jobs: publish the pinned product images, then
+# build, test, sign and release the desktop installer per OS. Secrets (named
+# only, never stored in the repo): WINDOWS_CERT_BASE64, WINDOWS_CERT_PASSWORD,
+# APPLE_ID, APPLE_APP_PASSWORD, APPLE_TEAM_ID.
+
+on:
+  push:
+    tags: ["desktop-v*"]
+
+jobs:
+  publish-images:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      # One version axis: launcher version = compose manifest = image tags.
+      # The tag is desktop-v<version>; images and the app carry <version>.
+      K2P_VERSION: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: strip the desktop-v prefix for the version axis
+        run: echo "K2P_VERSION=${GITHUB_REF_NAME#desktop-v}" >> "$GITHUB_ENV"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/backend.Dockerfile
+          push: true
+          tags: ghcr.io/daviddnd/k2p-backend:${{ env.K2P_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/frontend.Dockerfile
+          push: true
+          tags: ghcr.io/daviddnd/k2p-frontend:${{ env.K2P_VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  release:
+    needs: publish-images
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - name: pin the release version from the tag
+        run: npm --prefix desktop version "${GITHUB_REF_NAME#desktop-v}" --no-git-tag-version
+      - run: npm ci
+        working-directory: desktop
+      - run: npm test
+        working-directory: desktop
+      - run: npm run typecheck
+        working-directory: desktop
+      - run: npm run build
+        working-directory: desktop
+      - name: build the signed installer
+        run: npx electron-builder --publish never
+        working-directory: desktop
+        env:
+          CSC_LINK: ${{ secrets.WINDOWS_CERT_BASE64 }}
+          CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      - name: write the update manifest (version, URLs, SHA-256)
+        working-directory: desktop/release
+        run: |
+          VERSION="${GITHUB_REF_NAME#desktop-v}" python3 <<'PY'
+          import hashlib, json, os, pathlib
+          version = os.environ["VERSION"]
+          repo = os.environ["GITHUB_REPOSITORY"]
+          artifacts = {}
+          for artifact in sorted(pathlib.Path(".").glob("*.exe")) + sorted(pathlib.Path(".").glob("*.dmg")):
+              tag = f"desktop-v{version}"
+              artifacts[artifact.suffix.lstrip(".")] = {
+                  "url": f"https://github.com/{repo}/releases/download/{tag}/{artifact.name}",
+                  "sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
+              }
+          primary = artifacts.get("exe") or artifacts.get("dmg") or {}
+          pathlib.Path("manifest.json").write_text(json.dumps({
+              "version": version,
+              "url": primary.get("url", ""),
+              "sha256": primary.get("sha256", ""),
+              "artifacts": artifacts,
+          }, indent=2) + "\n")
+          PY
+      - name: upload the installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: k2p-desktop-${{ matrix.os }}
+          path: |
+            desktop/release/*.exe
+            desktop/release/*.dmg
+            desktop/release/manifest.json
+      - name: publish the GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            desktop/release/*.exe
+            desktop/release/*.dmg
+            desktop/release/manifest.json

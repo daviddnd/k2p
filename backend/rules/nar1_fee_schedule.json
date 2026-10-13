@@ -1,0 +1,19 @@
+{
+  "form": "NAR1",
+  "company_type": "private",
+  "currency": "HKD",
+  "schedules": [
+    {
+      "effective_from": "2023-12-01",
+      "effective_to": null,
+      "on_time_fee": 105,
+      "late_bands": [
+        {"over_days": 42, "within_months": 3, "fee": 870},
+        {"over_months": 3, "within_months": 6, "fee": 1740},
+        {"over_months": 6, "within_months": 9, "fee": 2610},
+        {"over_months": 9, "within_months": null, "fee": 3480}
+      ],
+      "source": "CR PAM 3C Main Service Fee Table (12/2023), section (六) 登記周年申報表, local private company column; reconfirmed by CR FAQ 'Major Fees under the Companies Ordinance' (checked 2025-01-01) and the CR fees pages (checked 2026-09-29). effective_from is the pinned source document's month — the earliest date the in-repo authoritative source evidences this schedule in force; correct to the legal commencement date when the vendor research records it."
+    }
+  ]
+}

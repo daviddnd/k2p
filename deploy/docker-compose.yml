@@ -1,0 +1,124 @@
+# Execution-plane deployment: single-tenant, TCSP-controlled Docker.
+# The desktop launcher (desktop/) starts the same services from prebuilt
+# images — see desktop/assets/desktop.compose.yml.
+#
+# Usage:
+#   docker compose -f deploy/docker-compose.yml up --build
+#
+# Image tags are pinned; bump them deliberately, not via `latest`.
+
+services:
+  db:
+    image: postgres:16.15-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aics}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aics-dev-only}
+      POSTGRES_DB: ${POSTGRES_DB:-aics}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-aics} -d $${POSTGRES_DB:-aics}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-aics}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-aics-dev-only}
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # console
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "mc ready local || curl -f http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio-init:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        mc alias set aics http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"
+        mc mb --ignore-existing "aics/$$AICS_S3_BUCKET"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-aics}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-aics-dev-only}
+      AICS_S3_BUCKET: ${AICS_S3_BUCKET:-aics-documents}
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: "no"
+
+  backend:
+    build:
+      context: ..
+      dockerfile: deploy/backend.Dockerfile
+    environment:
+      AICS_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-aics}:${POSTGRES_PASSWORD:-aics-dev-only}@db:5432/${POSTGRES_DB:-aics}
+      AICS_S3_ENDPOINT_URL: http://minio:9000
+      AICS_S3_BUCKET: ${AICS_S3_BUCKET:-aics-documents}
+      AICS_S3_ACCESS_KEY: ${MINIO_ROOT_USER:-aics}
+      AICS_S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-aics-dev-only}
+      AICS_SCAN_HOST: clamav
+      AICS_SCAN_PORT: "3310"
+      AICS_SETUP_TOKEN: ${AICS_SETUP_TOKEN:-}
+    volumes:
+      - ${AICS_CREDENTIAL_DIR:-./var/credentials}:/app/var
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+      clamav:
+        condition: service_healthy
+
+  clamav:
+    image: clamav/clamav:1.4.3
+    ports:
+      - "3310:3310"
+    volumes:
+      - clamav-data:/var/lib/clamav
+    healthcheck:
+      test: ["CMD-SHELL", "echo PING | nc -w 3 127.0.0.1 3310 | grep -q PONG"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 300s
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: deploy/frontend.Dockerfile
+    command:
+      - /bin/sh
+      - -c
+      - |
+        if [ -f /etc/nginx/certs/fullchain.pem ] && [ -f /etc/nginx/certs/privkey.pem ]; then
+          cp /etc/nginx/tls.conf /etc/nginx/conf.d/default.conf
+        fi
+        exec nginx -g 'daemon off;'
+    volumes:
+      - ${AICS_TLS_CERT_DIR:-./var/empty-certs}:/etc/nginx/certs:ro
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  db-data:
+  minio-data:
+  clamav-data:

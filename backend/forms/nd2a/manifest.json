@@ -1,0 +1,29 @@
+{
+  "form_code": "ND2A",
+  "title_en": "Notice of Change of Company Secretary and Director (Appointment/Cessation)",
+  "title_zh": "更改公司秘書及董事通知書 (委任╱停任)",
+  "ordinance_sections": "Sections 645(1), 645(4), 652(1), 652(2), Cap. 622",
+  "specification_no": "1/2023 (December 2023)",
+  "template": "form_nd2a_notice-change-company-secretary-director-appointment-cessation.pdf",
+  "language": "bilingual — English and Traditional Chinese in a single PDF",
+  "version": {
+    "cr_page_updated_on": null,
+    "cr_page_updated_on_scope": "no update date is shown on the CR specified-forms page for ND2A",
+    "pdf_creation_date": "2025-02-20",
+    "pdf_mod_date": "2025-05-13",
+    "downloaded_on": "2026-07-17",
+    "source_urls": [
+      "https://www.cr.gov.hk/en/companies_ordinance/docs/ND2A_fillable.pdf",
+      "https://www.cr.gov.hk/tc/companies_ordinance/docs/ND2A_fillable.pdf"
+    ],
+    "sha256": "801409acedd5aa821c93a9fe1322aa11125f5244330806cbd5b808844d936543",
+    "note": "The EN and TC download URLs serve a byte-identical bilingual PDF (same SHA-256); a single template file is pinned here. An official specimen (worked example) is published for ND2A."
+  },
+  "field_counts": {
+    "acroform_fields": 224,
+    "widgets": 202,
+    "parent_groups": 37
+  },
+  "mapping": "mapping.json",
+  "status": "current as of 2026-07-17"
+}

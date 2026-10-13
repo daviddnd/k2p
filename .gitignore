@@ -1,0 +1,16 @@
+.venv/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+# The execution plane's local activation state (control-plane credential +
+# deployment identity): a credential, never committed.
+/backend/var/
+# The compose deployment's custody directory — the backend's /app/var bind
+# mount (mailbox credential, activation token, tenant key): never committed.
+/deploy/var/
+node_modules/

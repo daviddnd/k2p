@@ -1,0 +1,36 @@
+{
+  "form_code": "NAR1",
+  "title_en": "Annual Return",
+  "title_zh": "周年申報表",
+  "ordinance_sections": "Section 662, Cap. 622",
+  "specification_no": "2/2025 (May 2025)",
+  "template": "form_nar1_annual-return.pdf",
+  "language": "bilingual — English and Traditional Chinese in a single PDF",
+  "version": {
+    "cr_page_updated_on": "2024-12-03",
+    "cr_page_updated_on_scope": "date shown on the CR specified-forms page attaches to the business-nature code list row; CR does not publish a form-level edition date for NAR1",
+    "pdf_creation_date": "2025-03-13",
+    "pdf_mod_date": "2025-05-14",
+    "downloaded_on": "2026-07-17",
+    "source_urls": [
+      "https://www.cr.gov.hk/en/companies_ordinance/docs/NAR1_fillable.pdf",
+      "https://www.cr.gov.hk/tc/companies_ordinance/docs/NAR1_fillable.pdf"
+    ],
+    "sha256": "3a0a9028ed1e4b7110f31844c3fc36add7aeea75afde5cd34e7c382d6f633b0f",
+    "note": "The EN and TC download URLs serve a byte-identical bilingual PDF (same SHA-256); a single template file is pinned here."
+  },
+  "companions": {
+    "business_nature_code_list": "research/counter-parties/cr/12-forms-and-templates/ref_business-nature-codes_e.pdf",
+    "member_schedule_templates": [
+      "research/counter-parties/cr/12-forms-and-templates/form_nar1_schedule1-members-non-listed_e.xlsx",
+      "research/counter-parties/cr/12-forms-and-templates/form_nar1_schedule2-members-listed_e.xlsx"
+    ]
+  },
+  "field_counts": {
+    "acroform_fields": 365,
+    "widgets": 327,
+    "parent_groups": 38
+  },
+  "mapping": "mapping.json",
+  "status": "current as of 2026-07-17"
+}

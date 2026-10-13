@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>K2P — first-run setup</title>
+<style>body{font-family:system-ui,sans-serif;max-width:28rem;margin:3rem auto;padding:0 1rem}
+label{display:block;margin:.75rem 0 .15rem}input{width:100%;padding:.4rem}
+button{margin-top:1.25rem;padding:.6rem 1.2rem}p{color:#444}</style></head>
+<body>
+<h1>K2P — first-run setup</h1>
+<p>Create your tenant and its Administrator. The optional registration code (from
+the vendor, if you registered on the website) activates your licence immediately.</p>
+<form method="post" action="/">
+<label>TCSP / company name<input name="tenantName" required></label>
+<label>Administrator name<input name="adminName" required></label>
+<label>Administrator email<input name="adminEmail" type="email" required></label>
+<label>Administrator password<input name="adminPassword" type="password" minlength="12" required></label>
+<label>Registration code (optional)<input name="registrationCode"></label>
+<button type="submit">Create my K2P</button>
+</form>
+</body></html>
