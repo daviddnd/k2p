@@ -1,19 +1,70 @@
 <!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><title>K2P — first-run setup</title>
-<style>body{font-family:system-ui,sans-serif;max-width:28rem;margin:3rem auto;padding:0 1rem}
+<style>
+body{font-family:system-ui,sans-serif;max-width:28rem;margin:3rem auto;padding:0 1rem}
 label{display:block;margin:.75rem 0 .15rem}input{width:100%;padding:.4rem}
-button{margin-top:1.25rem;padding:.6rem 1.2rem}p{color:#444}</style></head>
+button[type=submit]{margin-top:1.25rem;padding:.6rem 1.2rem}p{color:#444}
+.lang{float:right;font-size:.85rem}
+.pw{position:relative;display:block}
+.pw input{padding-right:2.1rem}
+.eye{position:absolute;right:.15rem;top:.15rem;border:0;background:none;cursor:pointer;color:#57606a;padding:.25rem}
+.err{display:none;color:#cf222e;font-size:.85rem;margin:.25rem 0 0}
+</style></head>
 <body>
-<h1>K2P — first-run setup</h1>
-<p>Create your tenant and its Administrator. The optional registration code (from
+<div class="lang"><a href="#" id="lang">中文</a></div>
+<h1 data-i18n="title">K2P — first-run setup</h1>
+<p data-i18n="intro">Create your tenant and its Administrator. The optional registration code (from
 the vendor, if you registered on the website) activates your licence immediately.</p>
-<form method="post" action="/">
-<label>TCSP / company name<input name="tenantName" required></label>
-<label>Administrator name<input name="adminName" required></label>
-<label>Administrator email<input name="adminEmail" type="email" required></label>
-<label>Administrator password<input name="adminPassword" type="password" minlength="12" required></label>
-<label>Registration code (optional)<input name="registrationCode"></label>
-<button type="submit">Create my K2P</button>
+<form method="post" action="/" id="form">
+<label><span data-i18n="tenant">TCSP / company name</span><input name="tenantName" required></label>
+<label><span data-i18n="name">Administrator name</span><input name="adminName" required></label>
+<label><span data-i18n="email">Administrator email</span><input name="adminEmail" type="email" required></label>
+<label><span data-i18n="password">Administrator password</span>
+  <span class="pw"><input name="adminPassword" type="password" minlength="12" autocomplete="new-password" required>
+  <button type="button" class="eye" data-eye="adminPassword" data-i18n-aria="show" aria-label="Show password"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></span></label>
+<label><span data-i18n="confirm">Confirm password</span>
+  <span class="pw"><input name="adminPasswordConfirm" type="password" minlength="12" autocomplete="new-password" required>
+  <button type="button" class="eye" data-eye="adminPasswordConfirm" data-i18n-aria="show" aria-label="Show password"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></span>
+  <span class="err" id="mismatch" data-i18n="mismatch">Passwords do not match.</span></label>
+<label><span data-i18n="code">Registration code (optional)</span><input name="registrationCode"></label>
+<button type="submit" data-i18n="create">Create my K2P</button>
 </form>
+<script>
+var T={
+en:{title:"K2P — first-run setup",intro:"Create your tenant and its Administrator. The optional registration code (from the vendor, if you registered on the website) activates your licence immediately.",tenant:"TCSP / company name",name:"Administrator name",email:"Administrator email",password:"Administrator password",confirm:"Confirm password",code:"Registration code (optional)",create:"Create my K2P",mismatch:"Passwords do not match.",show:"Show password",hide:"Hide password"},
+zh:{title:"K2P — 首次設定",intro:"建立你的租戶及管理員帳戶。選填的註冊碼（向廠商註冊後取得）可立即激活授權。",tenant:"TCSP／公司名稱",name:"管理員姓名",email:"管理員電郵",password:"管理員密碼",confirm:"確認密碼",code:"註冊碼（選填）",create:"建立我的 K2P",mismatch:"兩次輸入的密碼不一致。",show:"顯示密碼",hide:"隱藏密碼"}};
+var EYE='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+var EYEOFF='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+var lang=(navigator.language||"en").toLowerCase().indexOf("zh")===0?"zh":"en";
+function apply(){
+document.documentElement.lang=lang==="zh"?"zh-Hant":"en";
+var nodes=document.querySelectorAll("[data-i18n]");
+for(var i=0;i<nodes.length;i++){nodes[i].textContent=T[lang][nodes[i].getAttribute("data-i18n")];}
+document.getElementById("lang").textContent=lang==="zh"?"English":"中文";
+var eyes=document.querySelectorAll(".eye");
+for(var j=0;j<eyes.length;j++){eyes[j].setAttribute("aria-label",T[lang][eyes[j].getAttribute("data-i18n-aria")]);}
+document.title=T[lang].title;
+}
+document.getElementById("lang").onclick=function(e){e.preventDefault();lang=lang==="zh"?"en":"zh";apply();};
+var btns=document.querySelectorAll(".eye");
+for(var n=0;n<btns.length;n++){
+btns[n].onclick=function(){
+var input=document.querySelector('[name="'+this.getAttribute("data-eye")+'"]');
+var show=input.type==="password";
+input.type=show?"text":"password";
+this.innerHTML=show?EYEOFF:EYE;
+this.setAttribute("data-i18n-aria",show?"hide":"show");
+this.setAttribute("aria-label",T[lang][show?"hide":"show"]);
+};
+}
+document.getElementById("form").onsubmit=function(e){
+var a=document.querySelector('[name="adminPassword"]').value;
+var b=document.querySelector('[name="adminPasswordConfirm"]').value;
+var m=document.getElementById("mismatch");
+if(a!==b){e.preventDefault();m.textContent=T[lang].mismatch;m.style.display="block";}
+else{m.style.display="none";}
+};
+apply();
+</script>
 </body></html>

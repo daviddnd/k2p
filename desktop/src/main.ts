@@ -13,10 +13,11 @@ import { menuFor, MenuView } from "./menu";
 import { serveWizard } from "./wizard";
 import { startActivation } from "./bootstrap";
 
-// A 16x16 placeholder tray tile (flat K-blue square); replaced by the real
-// brand asset at release time (T11 packaging).
+// The K2P tray mark: white "K" on the brand-accent tile (--accent,
+// frontend/src/index.css), 32x32 RGBA, generated asset embedded so the
+// packaged app needs no extra files.
 const TILE_PNG =
-  "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKklEQVR4AWMYWuA/GsZfAgOMhkbDaGg0DIZGw2hoNIyGRsNoaDSMhoEHAO+kf9F+dEjuAAAAAElFTkSuQmCC";
+  "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABF0lEQVR42mNgGIyAM/NWA2fmrf9Uxg3EWOxAA4vRscNAWo7bEXS0HIxpFueKFff+N29+83/Thc9gWqH8LuE0QS3LrTse/T9489t/ZLD+3Of/IgV38IcCpRZzZ936HzHz2f+7r3/9Rwcfv/39b9n+kDIHoIOWLW/hcqIFd/7XrH/9//3Xv/+xAZo6ABTfi459/P/z97//uABVogCbA7DFNzIAOQrkODyJkHwH7L3+FWt8wwAoOkDRIorD5xQ7AB8AOQyUIEEJk+iygFoOAEUJKGpILowodQAsvkGJkqzSkBIHEBvfw9cBAx4FgyIR0j0bDnhBNOBF8aCojOhaHQ94g4QeTbKBbZQOeLN8UHRMBrxrNig6pwMBALflIUyJATvyAAAAAElFTkSuQmCC";
 
 const APP_URL = "http://localhost:5173";
 const BACKEND_URL = "http://127.0.0.1:8000";
@@ -263,4 +264,19 @@ async function main(): Promise<void> {
   }
 }
 
-void main();
+// One instance owns the tray, the env file and the stack; a second launch
+// (double-click, installer's "Launch K2P", login item) must not race it —
+// two composers on one project is exactly how pulls and state get corrupted.
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+} else {
+  app.on("second-instance", () => {
+    if (Notification.isSupported()) {
+      new Notification({
+        title: "K2P",
+        body: "K2P is already running — its icon is in the notification area, by the clock.",
+      }).show();
+    }
+  });
+  void main();
+}
