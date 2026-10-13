@@ -80,9 +80,14 @@ describe("bootstrapTenant", () => {
   });
 
   it("maps other failures to error", async () => {
-    const badUrl = backendUrl.replace("127.0.0.1", "127.0.0.2");
+    // A closed loopback port refuses instantly on every OS; 127.0.0.2 can
+    // hang on some CI runners instead of refusing.
+    const probe = http.createServer();
+    await new Promise<void>((resolve) => probe.listen(0, "127.0.0.1", resolve));
+    const port = (probe.address() as AddressInfo).port;
+    await new Promise((resolve) => probe.close(resolve));
     expect(
-      await bootstrapTenant(badUrl, "test-setup-token", {
+      await bootstrapTenant(`http://127.0.0.1:${port}`, "test-setup-token", {
         tenantName: "x",
         adminEmail: "a@b.c",
         adminName: "n",
