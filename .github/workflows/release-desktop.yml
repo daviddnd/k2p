@@ -73,15 +73,28 @@ jobs:
         working-directory: desktop
       - run: npm run build
         working-directory: desktop
+      # electron-builder treats an EMPTY CSC_LINK as a certificate path and
+      # fails — export the signing vars only when the secrets are configured,
+      # so unsigned test builds work in repos without signing secrets.
+      - name: expose signing secrets when configured
+        shell: bash
+        env:
+          CERT_BASE64: ${{ secrets.WINDOWS_CERT_BASE64 }}
+          CERT_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
+          APPLE_ID_SECRET: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          APPLE_TEAM: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          [ -n "$CERT_BASE64" ] && echo "CSC_LINK=$CERT_BASE64" >> "$GITHUB_ENV"
+          [ -n "$CERT_PASSWORD" ] && echo "CSC_KEY_PASSWORD=$CERT_PASSWORD" >> "$GITHUB_ENV"
+          if [ -n "$APPLE_ID_SECRET" ]; then
+            echo "APPLE_ID=$APPLE_ID_SECRET" >> "$GITHUB_ENV"
+            echo "APPLE_APP_PASSWORD=$APPLE_PASSWORD" >> "$GITHUB_ENV"
+            echo "APPLE_TEAM_ID=$APPLE_TEAM" >> "$GITHUB_ENV"
+          fi
       - name: build the signed installer
         run: npx electron-builder --publish never
         working-directory: desktop
-        env:
-          CSC_LINK: ${{ secrets.WINDOWS_CERT_BASE64 }}
-          CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       - name: write the update manifest (version, URLs, SHA-256)
         working-directory: desktop/release
         run: |

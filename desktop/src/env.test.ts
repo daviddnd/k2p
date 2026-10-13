@@ -68,12 +68,18 @@ describe("redactEnv", () => {
 });
 
 describe("writeEnvFile", () => {
-  it("writes KEY=value lines with mode 0600", () => {
+  it("writes KEY=value lines", () => {
     const file = tmpFile("k2p.env");
     writeEnvFile(file, { POSTGRES_USER: "aics", POSTGRES_PASSWORD: "x" });
     const text = fs.readFileSync(file, "utf-8");
     expect(text).toContain("POSTGRES_USER=aics\n");
     expect(text).toContain("POSTGRES_PASSWORD=x\n");
+  });
+
+  // POSIX mode bits do not exist on Windows — writeFileSync's mode is ignored there.
+  it.skipIf(process.platform === "win32")("writes the env file with mode 0600", () => {
+    const file = tmpFile("k2p.env");
+    writeEnvFile(file, { POSTGRES_USER: "aics", POSTGRES_PASSWORD: "x" });
     expect(fs.statSync(file).mode & 0o777).toBe(0o600);
   });
 });
