@@ -1,6 +1,6 @@
 {
   "name": "k2p-desktop",
-  "version": "0.1.0",
+  "version": "0.0.1-test",
   "private": true,
   "description": "K2P Desktop — the TCSP double-click installer/launcher for the K2P execution-plane stack",
   "main": "dist/main.js",
@@ -12,20 +12,35 @@
   "build": {
     "appId": "com.kairospinax.desktop",
     "productName": "K2P",
-    "directories": { "output": "release" },
-    "files": ["dist/**/*", "assets/**/*", "package.json"],
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
     "mac": {
       "category": "public.app-category.business",
-      "target": ["dmg"],
+      "target": [
+        "dmg"
+      ],
       "hardenedRuntime": true,
       "gatekeeperAssess": false
     },
-    "win": { "target": ["nsis"] },
-    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true }
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   },
   "devDependencies": {
     "@types/node": "^22.20.5",
-    "electron": "^44.7.0",
+    "electron": "44.7.0",
     "electron-builder": "^26.15.3",
     "typescript": "^5.9.3",
     "vitest": "^3.2.7"

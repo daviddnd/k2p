@@ -63,6 +63,7 @@ jobs:
           cache: npm
           cache-dependency-path: desktop/package-lock.json
       - name: pin the release version from the tag
+        shell: bash   # ${GITHUB_REF_NAME#desktop-v} is a bash parameter expansion
         run: npm --prefix desktop version "${GITHUB_REF_NAME#desktop-v}" --no-git-tag-version
       - run: npm ci
         working-directory: desktop

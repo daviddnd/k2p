@@ -40,7 +40,14 @@ async function main(): Promise<void> {
     })
   );
 
-  const composeFile = path.join(__dirname, "..", "assets", "desktop.compose.yml");
+  // docker compose is an external binary and cannot read inside the packaged
+  // asar archive, so the bundled pinned compose is extracted next to the env
+  // file at startup (Electron's fs reads asar paths; the docker CLI cannot).
+  const composeFile = path.join(layout.dataDir, "desktop.compose.yml");
+  fs.writeFileSync(
+    composeFile,
+    fs.readFileSync(path.join(__dirname, "..", "assets", "desktop.compose.yml"))
+  );
   const stack = new Stack({
     run: execRunner,
     file: composeFile,
