@@ -50,6 +50,8 @@ jobs:
 
   release:
     needs: publish-images
+    permissions:
+      contents: write   # softprops/action-gh-release publishes the GitHub Release
     strategy:
       fail-fast: false
       matrix:
@@ -96,9 +98,10 @@ jobs:
         run: npx electron-builder --publish never
         working-directory: desktop
       - name: write the update manifest (version, URLs, SHA-256)
+        shell: bash   # heredoc; `python` (not python3) is the cross-platform launcher
         working-directory: desktop/release
         run: |
-          VERSION="${GITHUB_REF_NAME#desktop-v}" python3 <<'PY'
+          VERSION="${GITHUB_REF_NAME#desktop-v}" python <<'PY'
           import hashlib, json, os, pathlib
           version = os.environ["VERSION"]
           repo = os.environ["GITHUB_REPOSITORY"]
