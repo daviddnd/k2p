@@ -3,13 +3,15 @@
 <head><meta charset="utf-8"><title>K2P — first-run setup</title>
 <style>
 body{font-family:system-ui,sans-serif;max-width:28rem;margin:3rem auto;padding:0 1rem}
-label{display:block;margin:.75rem 0 .15rem}input{width:100%;padding:.4rem}
+label{display:block;margin:.75rem 0 .15rem}input{width:100%;padding:.4rem;box-sizing:border-box}
 button[type=submit]{margin-top:1.25rem;padding:.6rem 1.2rem}p{color:#444}
 .lang{float:right;font-size:.85rem}
 .pw{position:relative;display:block}
 .pw input{padding-right:2.1rem}
 .eye{position:absolute;right:.15rem;top:.15rem;border:0;background:none;cursor:pointer;color:#57606a;padding:.25rem}
 .err{display:none;color:#cf222e;font-size:.85rem;margin:.25rem 0 0}
+.hint{display:block;color:#57606a;font-size:.8rem;margin:.1rem 0 0}
+input::-ms-reveal,input::-ms-clear{display:none}
 </style></head>
 <body>
 <div class="lang"><a href="#" id="lang">中文</a></div>
@@ -21,10 +23,10 @@ the vendor, if you registered on the website) activates your licence immediately
 <label><span data-i18n="name">Administrator name</span><input name="adminName" required></label>
 <label><span data-i18n="email">Administrator email</span><input name="adminEmail" type="email" required></label>
 <label><span data-i18n="password">Administrator password</span>
-  <span class="pw"><input name="adminPassword" type="password" minlength="12" autocomplete="new-password" required>
-  <button type="button" class="eye" data-eye="adminPassword" data-i18n-aria="show" aria-label="Show password"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></span></label>
+  <span class="pw"><input name="adminPassword" type="password" minlength="8" maxlength="128" autocomplete="new-password" required>
+  <button type="button" class="eye" data-eye="adminPassword" data-i18n-aria="show" aria-label="Show password"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></span><span class="hint" data-i18n="policy">At least 8 characters with upper &amp; lower case letters, a number and a symbol.</span></label>
 <label><span data-i18n="confirm">Confirm password</span>
-  <span class="pw"><input name="adminPasswordConfirm" type="password" minlength="12" autocomplete="new-password" required>
+  <span class="pw"><input name="adminPasswordConfirm" type="password" minlength="8" maxlength="128" autocomplete="new-password" required>
   <button type="button" class="eye" data-eye="adminPasswordConfirm" data-i18n-aria="show" aria-label="Show password"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></span>
   <span class="err" id="mismatch" data-i18n="mismatch">Passwords do not match.</span></label>
 <label><span data-i18n="code">Registration code (optional)</span><input name="registrationCode"></label>
@@ -32,10 +34,10 @@ the vendor, if you registered on the website) activates your licence immediately
 </form>
 <script>
 var T={
-en:{title:"K2P — first-run setup",intro:"Create your tenant and its Administrator. The optional registration code (from the vendor, if you registered on the website) activates your licence immediately.",tenant:"TCSP / company name",name:"Administrator name",email:"Administrator email",password:"Administrator password",confirm:"Confirm password",code:"Registration code (optional)",create:"Create my K2P",mismatch:"Passwords do not match.",show:"Show password",hide:"Hide password"},
-zh:{title:"K2P — 首次設定",intro:"建立你的租戶及管理員帳戶。選填的註冊碼（向廠商註冊後取得）可立即激活授權。",tenant:"TCSP／公司名稱",name:"管理員姓名",email:"管理員電郵",password:"管理員密碼",confirm:"確認密碼",code:"註冊碼（選填）",create:"建立我的 K2P",mismatch:"兩次輸入的密碼不一致。",show:"顯示密碼",hide:"隱藏密碼"}};
+en:{title:"K2P — first-run setup",intro:"Create your tenant and its Administrator. The optional registration code (from the vendor, if you registered on the website) activates your licence immediately.",tenant:"TCSP / company name",name:"Administrator name",email:"Administrator email",password:"Administrator password",confirm:"Confirm password",code:"Registration code (optional)",create:"Create my K2P",mismatch:"Passwords do not match.",show:"Show password",hide:"Hide password",policy:"At least 8 characters with upper & lower case letters, a number and a symbol.",short:"At least 8 characters.",lower:"Add a lowercase letter.",upper:"Add an uppercase letter.",digit:"Add a number.",symbol:"Add a symbol."},
+zh:{title:"K2P — 首次設定",intro:"建立你的租戶及管理員帳戶。選填的註冊碼（向廠商註冊後取得）可立即激活授權。",tenant:"TCSP／公司名稱",name:"管理員姓名",email:"管理員電郵",password:"管理員密碼",confirm:"確認密碼",code:"註冊碼（選填）",create:"建立我的 K2P",mismatch:"兩次輸入的密碼不一致。",show:"顯示密碼",hide:"隱藏密碼",policy:"至少 8 個字符，須包含大寫字母、小寫字母、數字和符號。",short:"至少需要 8 個字符。",lower:"請加入小寫字母。",upper:"請加入大寫字母。",digit:"請加入數字。",symbol:"請加入符號。"}};
 var EYE='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
-var EYEOFF='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+var EYEOFF='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="4" y1="20" x2="20" y2="4"/></svg>';
 var lang=(navigator.language||"en").toLowerCase().indexOf("zh")===0?"zh":"en";
 function apply(){
 document.documentElement.lang=lang==="zh"?"zh-Hant":"en";
@@ -44,6 +46,7 @@ for(var i=0;i<nodes.length;i++){nodes[i].textContent=T[lang][nodes[i].getAttribu
 document.getElementById("lang").textContent=lang==="zh"?"English":"中文";
 var eyes=document.querySelectorAll(".eye");
 for(var j=0;j<eyes.length;j++){eyes[j].setAttribute("aria-label",T[lang][eyes[j].getAttribute("data-i18n-aria")]);}
+if(document.querySelector('[name="adminPassword"]').value.length>0){checkPasswords();}
 document.title=T[lang].title;
 }
 document.getElementById("lang").onclick=function(e){e.preventDefault();lang=lang==="zh"?"en":"zh";apply();};
@@ -58,13 +61,26 @@ this.setAttribute("data-i18n-aria",show?"hide":"show");
 this.setAttribute("aria-label",T[lang][show?"hide":"show"]);
 };
 }
-document.getElementById("form").onsubmit=function(e){
-var a=document.querySelector('[name="adminPassword"]').value;
+document.getElementById("form").onsubmit=function(e){if(!checkPasswords()){e.preventDefault();}};
+function policyRefusal(p){
+if(p.length<8)return"short";
+if(!/[a-z]/.test(p))return"lower";
+if(!/[A-Z]/.test(p))return"upper";
+if(!/[0-9]/.test(p))return"digit";
+if(!/[^a-zA-Z0-9]/.test(p))return"symbol";
+return"";
+}
+function checkPasswords(){
+var p=document.querySelector('[name="adminPassword"]').value;
 var b=document.querySelector('[name="adminPasswordConfirm"]').value;
 var m=document.getElementById("mismatch");
-if(a!==b){e.preventDefault();m.textContent=T[lang].mismatch;m.style.display="block";}
-else{m.style.display="none";}
-};
+var refusal=p.length>0?policyRefusal(p):"";
+if(refusal!==""){m.textContent=T[lang][refusal];m.style.display="block";return false;}
+if(b.length===0||p===b){m.style.display="none";return true;}
+m.textContent=T[lang].mismatch;m.style.display="block";return false;
+}
+document.querySelector('[name="adminPassword"]').oninput=checkPasswords;
+document.querySelector('[name="adminPasswordConfirm"]').oninput=checkPasswords;
 apply();
 </script>
 </body></html>

@@ -40,6 +40,10 @@ async function main(): Promise<void> {
       return [line.slice(0, idx), line.slice(idx + 1)];
     })
   );
+  // Remote support needs a starting point on a customer's machine: the launch
+  // fact line is unconditional. Never log env contents — versions and probe
+  // results only, no secrets ever (k2p.env values stay out of app.log).
+  log(`launcher start version=${app.getVersion()} platform=${process.platform} envVersion=${env.K2P_VERSION ?? "unset"}`);
 
   // docker compose is an external binary and cannot read inside the packaged
   // asar archive, so the bundled pinned compose is extracted next to the env
@@ -63,6 +67,17 @@ async function main(): Promise<void> {
   let settings = loadSettings(layout.dataDir);
   let tray: Tray | null = null;
 
+  // Every status/docker mutation flows through render(), so one seam there
+  // records each transition once — the support timeline. State names only,
+  // same no-secrets rule as the launch line.
+  let loggedState: string | null = null;
+  const logState = (): void => {
+    const state = typeof status === "object" ? `error:${status.name}` : status;
+    if (state === loggedState) return;
+    loggedState = state;
+    log(`state ${state}; docker ${docker}`);
+  };
+
   async function refresh(): Promise<void> {
     try {
       const probe = await probeDocker(execRunner);
@@ -82,6 +97,7 @@ async function main(): Promise<void> {
   }
 
   function render(): void {
+    logState();
     if (!tray) return;
     const view: MenuView = {
       status,
@@ -248,7 +264,6 @@ async function main(): Promise<void> {
       },
     });
     await shell.openExternal(wizard.url);
-    setTimeout(() => void wizard.close(), 30 * 60_000);
   }
 
   await app.whenReady();

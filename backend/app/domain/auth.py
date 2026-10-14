@@ -1,4 +1,4 @@
-"""Password hashing and session-token primitives for staff login.
+"""Password hashing, session-token, and password-policy primitives for staff login.
 
 Stdlib cryptography only (``hashlib.scrypt``, ``hmac``, ``secrets``) — no new
 external dependency, which would need sign-off (AGENTS.md). Pure and
@@ -36,6 +36,33 @@ _MAX_R_P = 32
 
 #: Lifetime of a staff login session from issue.
 SESSION_TTL = timedelta(hours=12)
+
+#: Creation-time password policy (founder ruling 2026-10-13): 8-128 chars and
+#: all four character classes. One rule for every account-creation surface;
+#: login never re-checks it, so accounts created under an older policy keep
+#: signing in.
+PASSWORD_MIN_LENGTH = 8
+PASSWORD_MAX_LENGTH = 128
+
+
+def password_policy_violation(password: str) -> str | None:
+    """The machine-readable refusal when ``password`` breaks the creation
+    policy, else ``None``. The API layer mirrors the length bounds as Field
+    constraints; this is the single composition rule.
+    """
+    if len(password) < PASSWORD_MIN_LENGTH:
+        return "password_too_short"
+    if len(password) > PASSWORD_MAX_LENGTH:
+        return "password_too_long"
+    if not any(c.islower() for c in password):
+        return "password_missing_lowercase"
+    if not any(c.isupper() for c in password):
+        return "password_missing_uppercase"
+    if not any(c.isdigit() for c in password):
+        return "password_missing_digit"
+    if not any(not c.isalnum() for c in password):
+        return "password_missing_symbol"
+    return None
 
 
 def hash_password(password: str) -> str:

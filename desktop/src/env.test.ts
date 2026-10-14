@@ -17,10 +17,11 @@ afterEach(() => {
 });
 
 describe("generateEnv", () => {
-  it("contains exactly the seven pinned keys with the pinned non-secret values", () => {
+  it("contains exactly the eight pinned keys with the pinned non-secret values", () => {
     const env = generateEnv(() => "ab".repeat(32));
     expect(Object.keys(env).sort()).toEqual(
       [
+        "AICS_CP_BASE_URL",
         "AICS_SETUP_TOKEN",
         "AICS_S3_BUCKET",
         "K2P_CREDENTIAL_DIR",
@@ -34,6 +35,7 @@ describe("generateEnv", () => {
     expect(env.POSTGRES_USER).toBe("aics");
     expect(env.POSTGRES_DB).toBe("aics");
     expect(env.AICS_S3_BUCKET).toBe("aics-documents");
+    expect(env.AICS_CP_BASE_URL).toBe("https://cp.kairospinax.com");
     expect(env.K2P_VERSION).toBeTruthy();
     expect(env.K2P_CREDENTIAL_DIR).toBe("");
   });

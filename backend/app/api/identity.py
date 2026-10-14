@@ -21,13 +21,14 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapters.persistence.models import User
 from app.adapters.persistence.session import get_session
 from app.api.deps import ActorRef, get_current_actor, require_permission, require_setup_token
 from app.application import entitlement, identity
+from app.domain.auth import PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, password_policy_violation
 from app.domain.rbac import ActorContext, Permission, Role
 
 router = APIRouter(prefix="/api/v1", tags=["identity"])
@@ -35,11 +36,25 @@ router = APIRouter(prefix="/api/v1", tags=["identity"])
 _EMAIL_PATTERN = r"^[^@\s]+@[^@\s]+$"
 
 
+def _check_password_policy(password: str) -> str:
+    """The one creation-time policy gate, shared by every account-creation
+    request model (founder ruling 2026-10-13: >= 8 chars, all four classes)."""
+    violation = password_policy_violation(password)
+    if violation is not None:
+        raise ValueError(violation)
+    return password
+
+
 class CreateTenantRequest(BaseModel):
     tenant_name: str = Field(min_length=1, max_length=200)
     admin_email: str = Field(min_length=3, max_length=320, pattern=_EMAIL_PATTERN)
     admin_display_name: str = Field(min_length=1, max_length=200)
-    admin_password: str = Field(min_length=12, max_length=128)
+    admin_password: str = Field(min_length=PASSWORD_MIN_LENGTH, max_length=PASSWORD_MAX_LENGTH)
+
+    @field_validator("admin_password")
+    @classmethod
+    def _password_policy(cls, value: str) -> str:
+        return _check_password_policy(value)
 
 
 class CreateUserRequest(BaseModel):
@@ -48,7 +63,12 @@ class CreateUserRequest(BaseModel):
     role: Role
     # The Administrator sets the initial password; self-service change is
     # Phase 7 hardening, not this slice.
-    password: str = Field(min_length=12, max_length=128)
+    password: str = Field(min_length=PASSWORD_MIN_LENGTH, max_length=PASSWORD_MAX_LENGTH)
+
+    @field_validator("password")
+    @classmethod
+    def _password_policy(cls, value: str) -> str:
+        return _check_password_policy(value)
     # Fail-safe default: every grant is denied unless explicitly requested.
     review_events: bool = False
     approve_events: bool = False

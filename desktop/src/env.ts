@@ -4,6 +4,10 @@ import * as fs from "fs";
 export const SETUP_TOKEN_KEY = "AICS_SETUP_TOKEN";
 
 const PINNED: Record<string, string> = {
+  // The vendor control plane (ADR-0016) — the production activation/lease
+  // endpoint every fresh install points at; non-secret, per-deployment
+  // overrides (test LAN CPs) go in k2p.env by hand as before.
+  AICS_CP_BASE_URL: "https://cp.kairospinax.com",
   POSTGRES_USER: "aics",
   POSTGRES_DB: "aics",
   AICS_S3_BUCKET: "aics-documents",
